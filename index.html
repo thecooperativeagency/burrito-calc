@@ -2,683 +2,291 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
-<title>Burrito Calculator</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<title>Burrito Cost Calculator</title>
 <style>
-  :root {
-    --bg: #f5f0eb;
-    --surface: #ffffff;
-    --primary: #c0392b;
-    --primary-dark: #a93226;
-    --text: #1a1a1a;
-    --muted: #666;
-    --border: #e0d8d0;
-    --green: #27ae60;
-    --tab-inactive: #e8e0d8;
+  :root{
+    --bg:#1b1714; --card:#26201c; --card2:#2f2823; --line:#3d342d;
+    --text:#f3ece4; --muted:#a8988a; --accent:#e2792f; --accent2:#3fa66a;
+    --blue:#5aa9e6; --red:#e0664f; --radius:14px;
   }
-
-  * { box-sizing: border-box; margin: 0; padding: 0; }
-
-  body {
-    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
-    background: var(--bg);
-    color: var(--text);
-    min-height: 100vh;
-    max-width: 480px;
-    margin: 0 auto;
-  }
-
-  header {
-    background: var(--primary);
-    color: white;
-    padding: 16px 20px 12px;
-    position: sticky;
-    top: 0;
-    z-index: 10;
-  }
-
-  header h1 {
-    font-size: 20px;
-    font-weight: 700;
-    letter-spacing: -0.3px;
-  }
-
-  header p {
-    font-size: 12px;
-    opacity: 0.8;
-    margin-top: 2px;
-  }
-
-  .tabs {
-    display: flex;
-    background: var(--primary-dark);
-    padding: 0 8px;
-  }
-
-  .tab {
-    flex: 1;
-    padding: 10px 4px;
-    background: none;
-    border: none;
-    color: rgba(255,255,255,0.7);
-    font-size: 12px;
-    font-weight: 600;
-    text-transform: uppercase;
-    letter-spacing: 0.5px;
-    cursor: pointer;
-    border-bottom: 3px solid transparent;
-    transition: all 0.15s;
-  }
-
-  .tab.active {
-    color: white;
-    border-bottom-color: white;
-  }
-
-  .content {
-    padding: 16px;
-  }
-
-  .panel { display: none; }
-  .panel.active { display: block; }
-
-  .card {
-    background: var(--surface);
-    border-radius: 12px;
-    padding: 16px;
-    margin-bottom: 14px;
-    box-shadow: 0 1px 4px rgba(0,0,0,0.07);
-  }
-
-  .card-title {
-    font-size: 13px;
-    font-weight: 700;
-    text-transform: uppercase;
-    letter-spacing: 0.5px;
-    color: var(--muted);
-    margin-bottom: 14px;
-  }
-
-  .input-row {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    padding: 10px 0;
-    border-bottom: 1px solid var(--border);
-  }
-
-  .input-row:last-child { border-bottom: none; }
-
-  .input-label {
-    font-size: 16px;
-    font-weight: 500;
-    flex: 1;
-  }
-
-  .input-sub {
-    font-size: 12px;
-    color: var(--muted);
-    margin-top: 2px;
-  }
-
-  .stepper {
-    display: flex;
-    align-items: center;
-    gap: 0;
-  }
-
-  .stepper button {
-    width: 38px;
-    height: 38px;
-    border: 2px solid var(--border);
-    background: var(--bg);
-    font-size: 20px;
-    cursor: pointer;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    color: var(--text);
-    transition: background 0.1s;
-    user-select: none;
-    -webkit-user-select: none;
-  }
-
-  .stepper button:first-child { border-radius: 8px 0 0 8px; border-right: 1px solid var(--border); }
-  .stepper button:last-child { border-radius: 0 8px 8px 0; border-left: 1px solid var(--border); }
-  .stepper button:active { background: var(--border); }
-
-  .stepper-val {
-    width: 46px;
-    height: 38px;
-    border: 2px solid var(--border);
-    border-left: none;
-    border-right: none;
-    text-align: center;
-    font-size: 18px;
-    font-weight: 600;
-    background: white;
-    color: var(--text);
-    -moz-appearance: textfield;
-  }
-
-  .stepper-val::-webkit-outer-spin-button,
-  .stepper-val::-webkit-inner-spin-button { -webkit-appearance: none; }
-
-  .price-input-wrap {
-    display: flex;
-    align-items: center;
-    border: 2px solid var(--border);
-    border-radius: 8px;
-    overflow: hidden;
-    background: white;
-  }
-
-  .price-prefix {
-    padding: 0 10px;
-    font-size: 18px;
-    color: var(--muted);
-    background: var(--bg);
-    border-right: 2px solid var(--border);
-    height: 42px;
-    display: flex;
-    align-items: center;
-  }
-
-  .price-input {
-    width: 70px;
-    height: 42px;
-    border: none;
-    padding: 0 10px;
-    font-size: 18px;
-    font-weight: 600;
-    text-align: center;
-    background: white;
-    color: var(--text);
-    outline: none;
-    -moz-appearance: textfield;
-  }
-
-  .price-input::-webkit-outer-spin-button,
-  .price-input::-webkit-inner-spin-button { -webkit-appearance: none; }
-
-  /* Results */
-  .results-table {
-    width: 100%;
-    border-collapse: collapse;
-    font-size: 14px;
-  }
-
-  .results-table th {
-    text-align: left;
-    padding: 8px 6px;
-    font-size: 11px;
-    font-weight: 700;
-    text-transform: uppercase;
-    letter-spacing: 0.4px;
-    color: var(--muted);
-    border-bottom: 2px solid var(--border);
-  }
-
-  .results-table th:last-child { text-align: right; }
-
-  .results-table td {
-    padding: 10px 6px;
-    border-bottom: 1px solid var(--border);
-    vertical-align: top;
-  }
-
-  .results-table tr:last-child td { border-bottom: none; }
-
-  .results-table td:first-child { font-weight: 600; font-size: 15px; }
-  .results-table td:nth-child(2) { color: var(--muted); font-size: 13px; }
-  .results-table td:last-child { text-align: right; color: var(--muted); font-size: 13px; }
-
-  .buy-qty {
-    font-size: 11px;
-    color: var(--primary);
-    font-weight: 600;
-    margin-top: 2px;
-  }
-
-  .total-row {
-    background: var(--bg);
-    border-radius: 8px;
-    padding: 12px 14px;
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    margin-top: 12px;
-  }
-
-  .total-label { font-size: 14px; font-weight: 600; color: var(--muted); }
-  .total-val { font-size: 22px; font-weight: 700; color: var(--primary); }
-
-  /* Revenue panel */
-  .rev-grid {
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    gap: 10px;
-    margin-bottom: 12px;
-  }
-
-  .rev-cell {
-    background: var(--bg);
-    border-radius: 10px;
-    padding: 12px 14px;
-  }
-
-  .rev-cell.full { grid-column: 1 / -1; }
-  .rev-cell.highlight { background: #eaf7ef; }
-
-  .rev-cell-label {
-    font-size: 11px;
-    font-weight: 700;
-    text-transform: uppercase;
-    letter-spacing: 0.4px;
-    color: var(--muted);
-    margin-bottom: 4px;
-  }
-
-  .rev-cell-val {
-    font-size: 22px;
-    font-weight: 700;
-    color: var(--text);
-  }
-
-  .rev-cell.highlight .rev-cell-val { color: var(--green); }
-
-  .rev-cell-sub {
-    font-size: 12px;
-    color: var(--muted);
-    margin-top: 2px;
-  }
-
-  .type-row {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    padding: 9px 0;
-    border-bottom: 1px solid var(--border);
-    font-size: 14px;
-  }
-
-  .type-row:last-child { border-bottom: none; }
-  .type-name { font-weight: 600; }
-  .type-detail { color: var(--muted); font-size: 13px; }
-  .type-net { font-weight: 700; color: var(--green); }
-
-  /* Quick Ref */
-  .qr-card {
-    background: var(--surface);
-    border-radius: 12px;
-    overflow: hidden;
-    margin-bottom: 14px;
-    box-shadow: 0 1px 4px rgba(0,0,0,0.07);
-  }
-
-  .qr-header {
-    background: var(--primary);
-    color: white;
-    padding: 12px 16px;
-    font-weight: 700;
-    font-size: 15px;
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-  }
-
-  .qr-cost {
-    font-size: 20px;
-    font-weight: 800;
-  }
-
-  .qr-row {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    padding: 11px 16px;
-    border-bottom: 1px solid var(--border);
-    font-size: 14px;
-  }
-
-  .qr-row:last-child { border-bottom: none; }
-  .qr-ing { color: var(--muted); }
-  .qr-amt { font-weight: 600; }
-
-  .zero-state {
-    text-align: center;
-    color: var(--muted);
-    font-size: 15px;
-    padding: 30px 0;
-  }
-
-  .badge {
-    background: var(--primary);
-    color: white;
-    border-radius: 20px;
-    padding: 3px 9px;
-    font-size: 12px;
-    font-weight: 700;
-    margin-left: 8px;
-  }
-
-  footer {
-    text-align: center;
-    padding: 20px;
-    font-size: 11px;
-    color: var(--muted);
-  }
+  *{box-sizing:border-box;-webkit-tap-highlight-color:transparent;}
+  body{margin:0;font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif;
+    background:var(--bg);color:var(--text);font-size:16px;line-height:1.4;padding-bottom:60px;}
+  header{position:sticky;top:0;z-index:10;background:linear-gradient(135deg,#2a221c,#1b1714);
+    padding:14px 16px;border-bottom:1px solid var(--line);}
+  header h1{margin:0;font-size:18px;display:flex;align-items:center;gap:8px;}
+  header .sub{margin:2px 0 0;font-size:12px;color:var(--muted);}
+  .wrap{max-width:760px;margin:0 auto;padding:14px;}
+  .card{background:var(--card);border:1px solid var(--line);border-radius:var(--radius);
+    margin-bottom:14px;overflow:hidden;}
+  .card > .head{padding:13px 15px;font-weight:600;font-size:15px;display:flex;
+    justify-content:space-between;align-items:center;cursor:pointer;user-select:none;}
+  .card > .head .chev{transition:transform .2s;color:var(--muted);font-size:13px;}
+  .card.collapsed .body{display:none;}
+  .card.collapsed .head .chev{transform:rotate(-90deg);}
+  .body{padding:0 15px 15px;}
+  label{font-size:12px;color:var(--muted);display:block;margin:0 0 3px;}
+  input{width:100%;background:var(--card2);border:1px solid var(--line);color:var(--text);
+    border-radius:9px;padding:10px 11px;font-size:16px;font-variant-numeric:tabular-nums;}
+  input:focus{outline:none;border-color:var(--accent);}
+  .grid3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:9px;}
+  .grid2{display:grid;grid-template-columns:1fr 1fr;gap:9px;}
+  .field{margin-bottom:11px;}
+  /* result cards per type */
+  .types{display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px;}
+  .tcard{background:var(--card2);border:1px solid var(--line);border-radius:12px;padding:12px 10px;text-align:center;}
+  .tcard .name{font-size:12px;color:var(--muted);text-transform:uppercase;letter-spacing:.04em;}
+  .tcard .cost{font-size:22px;font-weight:700;margin:5px 0 2px;}
+  .tcard .sub{font-size:11px;color:var(--muted);}
+  .tcard .profit{color:var(--accent2);font-weight:600;}
+  table{width:100%;border-collapse:collapse;font-size:14px;font-variant-numeric:tabular-nums;}
+  th,td{padding:9px 6px;text-align:right;border-bottom:1px solid var(--line);}
+  th:first-child,td:first-child{text-align:left;}
+  th{font-size:11px;color:var(--muted);text-transform:uppercase;letter-spacing:.03em;font-weight:600;}
+  tr:last-child td{border-bottom:none;}
+  .tot td{font-weight:700;border-top:2px solid var(--accent);}
+  .buy{color:var(--accent);font-weight:600;}
+  .bignum{font-size:28px;font-weight:800;}
+  .row-sb{display:flex;justify-content:space-between;align-items:baseline;padding:7px 0;border-bottom:1px solid var(--line);}
+  .row-sb:last-child{border-bottom:none;}
+  .row-sb .v{font-weight:700;font-size:17px;}
+  .pos{color:var(--accent2);} .neg{color:var(--red);}
+  .ingrow{display:grid;grid-template-columns:1.4fr 1fr 1fr .8fr;gap:7px;align-items:end;
+    padding:9px 0;border-bottom:1px solid var(--line);}
+  .ingrow:last-child{border-bottom:none;}
+  .ingrow .nm{font-size:13px;font-weight:600;align-self:center;}
+  .recrow{display:grid;grid-template-columns:1.3fr 1fr 1fr 1fr;gap:7px;align-items:end;
+    padding:9px 0;border-bottom:1px solid var(--line);}
+  .recrow:last-child{border-bottom:none;}
+  .recrow .nm{font-size:13px;font-weight:600;align-self:center;}
+  .unit{font-size:10px;color:var(--muted);}
+  .btn{background:var(--accent);color:#1b1714;border:none;border-radius:10px;padding:11px;
+    font-size:14px;font-weight:700;width:100%;cursor:pointer;}
+  .btn.ghost{background:transparent;color:var(--muted);border:1px solid var(--line);}
+  .note{font-size:11px;color:var(--muted);margin-top:8px;line-height:1.5;}
+  .pill{display:inline-block;background:var(--card2);border:1px solid var(--line);border-radius:20px;
+    padding:3px 10px;font-size:11px;color:var(--muted);margin-left:6px;}
 </style>
 </head>
 <body>
-
 <header>
-  <h1>🌯 Burrito Calculator</h1>
-  <p>Par · Revenue · Quick Reference</p>
+  <h1>🌯 Burrito Cost Calculator</h1>
+  <p class="sub">Edit anything — it recalculates instantly. Saves on this device.</p>
 </header>
+<div class="wrap">
 
-<div class="tabs">
-  <button class="tab active" onclick="switchTab('par')">Par Sheet</button>
-  <button class="tab" onclick="switchTab('revenue')">Revenue</button>
-  <button class="tab" onclick="switchTab('ref')">Quick Ref</button>
-</div>
-
-<div class="content">
-
-  <!-- PAR SHEET -->
-  <div id="panel-par" class="panel active">
-    <div class="card">
-      <div class="card-title">Daily Batch</div>
-      <div class="input-row">
-        <div class="input-label">🥓 Bacon<div class="input-sub">per day</div></div>
-        <div class="stepper">
-          <button onclick="step('bacon',-1)">−</button>
-          <input class="stepper-val" type="number" id="bacon" value="8" min="0" oninput="calc()">
-          <button onclick="step('bacon',1)">+</button>
-        </div>
+  <!-- ORDER -->
+  <div class="card">
+    <div class="head" data-toggle>Order <span class="chev">▾</span></div>
+    <div class="body">
+      <div class="grid3">
+        <div><label>Bacon / day</label><input id="o_bacon" inputmode="numeric"></div>
+        <div><label>Sausage / day</label><input id="o_sausage" inputmode="numeric"></div>
+        <div><label>Potato / day</label><input id="o_potato" inputmode="numeric"></div>
       </div>
-      <div class="input-row">
-        <div class="input-label">🌭 Sausage<div class="input-sub">per day</div></div>
-        <div class="stepper">
-          <button onclick="step('sausage',-1)">−</button>
-          <input class="stepper-val" type="number" id="sausage" value="8" min="0" oninput="calc()">
-          <button onclick="step('sausage',1)">+</button>
-        </div>
+      <div class="field" style="margin-top:11px;max-width:140px">
+        <label>Days</label><input id="o_days" inputmode="numeric">
       </div>
-      <div class="input-row">
-        <div class="input-label">🥔 Potato<div class="input-sub">per day</div></div>
-        <div class="stepper">
-          <button onclick="step('potato',-1)">−</button>
-          <input class="stepper-val" type="number" id="potato" value="6" min="0" oninput="calc()">
-          <button onclick="step('potato',1)">+</button>
-        </div>
-      </div>
-      <div class="input-row">
-        <div class="input-label">📅 Days<div class="input-sub">this period</div></div>
-        <div class="stepper">
-          <button onclick="step('days',-1)">−</button>
-          <input class="stepper-val" type="number" id="days" value="3" min="1" oninput="calc()">
-          <button onclick="step('days',1)">+</button>
-        </div>
-      </div>
+      <div class="note" id="orderNote"></div>
     </div>
-
-    <div id="par-results"></div>
   </div>
 
-  <!-- REVENUE -->
-  <div id="panel-revenue" class="panel">
-    <div class="card">
-      <div class="card-title">Sell Price</div>
-      <div class="input-row" style="border:none; padding:0;">
-        <div class="input-label">Price per burrito</div>
-        <div class="price-input-wrap">
-          <span class="price-prefix">$</span>
-          <input class="price-input" type="number" id="sellprice" value="8" min="0" step="0.50" oninput="calc()">
-        </div>
+  <!-- COST PER BURRITO -->
+  <div class="card">
+    <div class="head" data-toggle>Cost &amp; Profit per Burrito <span class="chev">▾</span></div>
+    <div class="body">
+      <div class="types" id="typeCards"></div>
+      <div class="grid3" style="margin-top:12px">
+        <div><label>Bacon price $</label><input id="s_bacon" inputmode="decimal"></div>
+        <div><label>Sausage price $</label><input id="s_sausage" inputmode="decimal"></div>
+        <div><label>Potato price $</label><input id="s_potato" inputmode="decimal"></div>
       </div>
+      <div class="note">Set a sell price above to see profit &amp; margin. Costs are ingredients only (no labor/overhead).</div>
     </div>
-    <div id="rev-results"></div>
   </div>
 
-  <!-- QUICK REF -->
-  <div id="panel-ref" class="panel">
-    <div id="ref-results"></div>
+  <!-- PAR / SHOPPING LIST -->
+  <div class="card">
+    <div class="head" data-toggle>Par / Shopping List <span class="chev">▾</span></div>
+    <div class="body" style="overflow-x:auto">
+      <table id="parTable">
+        <thead><tr><th>Ingredient</th><th>Per Day</th><th>Total</th><th>Buy</th><th>Cost</th></tr></thead>
+        <tbody></tbody>
+      </table>
+      <div class="note">“Buy” rounds up to whole purchase units (packs/lbs). “Cost” is usage-based.</div>
+    </div>
   </div>
+
+  <!-- REVENUE & NET -->
+  <div class="card">
+    <div class="head" data-toggle>Revenue &amp; Net <span class="chev">▾</span></div>
+    <div class="body" id="revBody"></div>
+  </div>
+
+  <!-- EDIT PRICES -->
+  <div class="card collapsed">
+    <div class="head" data-toggle>Ingredient Prices <span class="chev">▾</span></div>
+    <div class="body">
+      <div style="display:grid;grid-template-columns:1.4fr 1fr 1fr .8fr;gap:7px;margin-bottom:4px">
+        <label>Ingredient</label><label>Pack $</label><label>Pack size</label><label>Unit</label>
+      </div>
+      <div id="ingEdit"></div>
+    </div>
+  </div>
+
+  <!-- EDIT RECIPE -->
+  <div class="card collapsed">
+    <div class="head" data-toggle>Recipe — amount per burrito <span class="chev">▾</span></div>
+    <div class="body">
+      <div style="display:grid;grid-template-columns:1.3fr 1fr 1fr 1fr;gap:7px;margin-bottom:4px">
+        <label>Ingredient</label><label>Bacon</label><label>Sausage</label><label>Potato</label>
+      </div>
+      <div id="recEdit"></div>
+      <div class="note">Amounts are in each ingredient's unit. Veg mix (peppers/onions) are per-burrito shares of the batch.</div>
+    </div>
+  </div>
+
+  <div class="grid2">
+    <button class="btn ghost" id="resetBtn">Reset to defaults</button>
+    <button class="btn" id="shareBtn">Copy snapshot</button>
+  </div>
+  <div class="note" style="text-align:center;margin-top:10px">All edits stay on this device. Refresh-safe.</div>
 
 </div>
-
-<footer>Costs from Costco/wholesale pricing · Ingredient costs only, no labor</footer>
 
 <script>
-// ── RECIPE (per burrito) ──────────────────────────────────────
-const recipe = {
-  bacon:   { tortillas:1, eggs:1.5, cheddar_oz:1.5, veg_oz:1, protein_oz:2.4, protein:'bacon'   },
-  sausage: { tortillas:1, eggs:1.5, cheddar_oz:1.5, veg_oz:1, protein_oz:2.0, protein:'sausage' },
-  potato:  { tortillas:1, eggs:1.5, cheddar_oz:1.5, veg_oz:1, protein_oz:2.0, protein:'potato'  }
+const DEFAULTS = {
+  ingredients: [
+    {name:"Tortilla",        price:9.00, pack:20, unit:"each", qty:{bacon:1,    sausage:1,    potato:1}},
+    {name:"Eggs",            price:9.00, pack:24, unit:"each", qty:{bacon:1.5,  sausage:1.5,  potato:1.5}},
+    {name:"Bacon",           price:10.00,pack:16, unit:"oz",   qty:{bacon:2.4,  sausage:0,    potato:0}},
+    {name:"Sausage",         price:5.00, pack:16, unit:"oz",   qty:{bacon:0,    sausage:2,    potato:0}},
+    {name:"Cheddar",         price:14.00,pack:32, unit:"oz",   qty:{bacon:1,    sausage:1,    potato:1}},
+    {name:"Potatoes",        price:6.40, pack:80, unit:"oz",   qty:{bacon:1,    sausage:1,    potato:2}},
+    {name:"Red bell peppers",price:6.99, pack:6,  unit:"each", qty:{bacon:0.1333,sausage:0.1333,potato:0.1333}},
+    {name:"Onions",          price:5.20, pack:6,  unit:"lb",   qty:{bacon:0.04889,sausage:0.04889,potato:0.04889}},
+  ],
+  order:{bacon:8, sausage:8, potato:6, days:3},
+  sell:{bacon:8, sausage:8, potato:8}
 };
+const TYPES=["bacon","sausage","potato"];
+const LABEL={bacon:"Bacon",sausage:"Sausage",potato:"Potato"};
+const KEY="burritoCalc_v1";
 
-// ── COSTS ─────────────────────────────────────────────────────
-const costs = {
-  tortilla:    0.25,          // per each
-  egg:         0.375,         // per each
-  cheddar_oz:  0.46875,       // per oz (15/32 = 2lb block $15)
-  pepper:      1.1667,        // per each (6-pack $7)
-  onion_lb:    0.8667,        // per lb (6lb bag $5.20)
-  potato_oz:   0.075,         // per oz (5lb=$6, 80oz)
-  bacon_oz:    0.40,          // per oz
-  sausage_oz:  0.42,          // per oz
-};
-
-// Veg yield: 1 pepper + 0.4 lb onion → 7.5 burritos of sautéed veg
-const VEG_PEPPER_PER_BURRITO = 1 / 7.5;
-const VEG_ONION_LB_PER_BURRITO = 0.4 / 7.5;
-
-// ── COST PER BURRITO ─────────────────────────────────────────
-function burritoCost(type) {
-  const r = recipe[type];
-  let cost = costs.tortilla
-    + r.eggs * costs.egg
-    + r.cheddar_oz * costs.cheddar_oz
-    + VEG_PEPPER_PER_BURRITO * costs.pepper
-    + VEG_ONION_LB_PER_BURRITO * costs.onion_lb;
-
-  if (type === 'bacon')   cost += r.protein_oz * costs.bacon_oz;
-  if (type === 'sausage') cost += r.protein_oz * costs.sausage_oz;
-  if (type === 'potato')  cost += r.protein_oz * costs.potato_oz;
-  return cost;
+let state = load();
+function load(){
+  try{const s=JSON.parse(localStorage.getItem(KEY)); if(s&&s.ingredients) return s;}catch(e){}
+  return JSON.parse(JSON.stringify(DEFAULTS));
 }
+function save(){ localStorage.setItem(KEY, JSON.stringify(state)); }
+const $=s=>document.querySelector(s);
+const num=v=>{const n=parseFloat(v);return isNaN(n)?0:n;};
+const money=v=>"$"+v.toLocaleString("en-US",{minimumFractionDigits:2,maximumFractionDigits:2});
+const fmt=v=>{ if(v===0) return "0"; if(v<10) return (Math.round(v*100)/100).toString(); return (Math.round(v*10)/10).toString(); };
 
-// ── BUY QUANTITY HELPERS ─────────────────────────────────────
-function buyTortillas(n)   { const packs = Math.ceil(n/20); return `${packs} × 20-pack ($${(packs*5).toFixed(0)})`; }
-function buyEggs(n)        { const packs = Math.ceil(n/24); return `${packs} × 24-pack ($${(packs*9).toFixed(0)})`; }
-function buyCheddar(oz)    { const blocks = Math.ceil(oz/32); return `${blocks} × 2-lb block ($${(blocks*15).toFixed(0)})`; }
-function buyPeppers(n)     { const packs = Math.ceil(n/6);  return `${packs} × 6-pack ($${(packs*7).toFixed(0)})`; }
-function buyOnion(lb)      { const bags = Math.ceil(lb/6);  return `${bags} × 6-lb bag ($${(bags*5.20).toFixed(2)})`; }
-function buyPotato(oz)     { const bags = Math.ceil(oz/80); return `${bags} × 5-lb bag ($${(bags*6).toFixed(0)})`; }
-function buyBacon(oz)      { const lb = oz/16; return `${lb.toFixed(1)} lb ($${(lb*6.40).toFixed(2)})`; }
-function buySausage(oz)    { const lb = oz/16; return `${lb.toFixed(1)} lb ($${(lb*6.72).toFixed(2)})`; }
+function unitCost(i){ return i.pack>0 ? i.price/i.pack : 0; }
+function costPer(type){ return state.ingredients.reduce((s,i)=>s+ i.qty[type]*unitCost(i),0); }
+function totalCount(type){ return num(state.order[type])*num(state.order.days); }
 
-function fmt(n, dec=2) { return n.toFixed(dec); }
-function money(n) { return '$' + n.toFixed(2); }
+function render(){
+  // order note
+  const perDay = TYPES.reduce((s,t)=>s+num(state.order[t]),0);
+  const tot = perDay*num(state.order.days);
+  $("#orderNote").textContent = `${perDay} burritos/day × ${num(state.order.days)} day(s) = ${tot} total`;
 
-// ── MAIN CALC ────────────────────────────────────────────────
-function getInputs() {
-  const bacon   = Math.max(0, parseInt(document.getElementById('bacon').value)   || 0);
-  const sausage = Math.max(0, parseInt(document.getElementById('sausage').value) || 0);
-  const potato  = Math.max(0, parseInt(document.getElementById('potato').value)  || 0);
-  const days    = Math.max(1, parseInt(document.getElementById('days').value)    || 1);
-  const price   = Math.max(0, parseFloat(document.getElementById('sellprice').value) || 0);
-  return { bacon, sausage, potato, days, price };
-}
-
-function calc() {
-  const { bacon, sausage, potato, days, price } = getInputs();
-  const total = (bacon + sausage + potato) * days;
-
-  // Totals over all days
-  const tBacon   = bacon * days;
-  const tSausage = sausage * days;
-  const tPotato  = potato * days;
-  const tTotal   = tBacon + tSausage + tPotato;
-
-  // ── PAR RESULTS ──
-  if (total === 0) {
-    document.getElementById('par-results').innerHTML =
-      '<div class="zero-state">Set your daily batch above to see the shopping list.</div>';
-  } else {
-    const tortillas = tTotal;
-    const eggs      = tTotal * 1.5;
-    const cheddar   = tTotal * 1.5;
-    const peppers   = tTotal * VEG_PEPPER_PER_BURRITO;
-    const onion_lb  = tTotal * VEG_ONION_LB_PER_BURRITO;
-    const potato_oz = tPotato * 2.0;
-    const bacon_oz  = tBacon * 2.4;
-    const sausage_oz = tSausage * 2.0;
-
-    const ingCosts = {
-      tortillas: tortillas * costs.tortilla,
-      eggs:      eggs * costs.egg,
-      cheddar:   cheddar * costs.cheddar_oz,
-      peppers:   peppers * costs.pepper,
-      onion:     onion_lb * costs.onion_lb,
-      potato:    potato_oz * costs.potato_oz,
-      bacon:     bacon_oz * costs.bacon_oz,
-      sausage:   sausage_oz * costs.sausage_oz,
-    };
-
-    const totalCost = Object.values(ingCosts).reduce((a,b) => a+b, 0);
-
-    let rows = `
-      <tr><td>Tortillas</td><td>${tortillas}</td><td><div class="buy-qty">${buyTortillas(tortillas)}</div></td></tr>
-      <tr><td>Eggs</td><td>${fmt(eggs,0)}</td><td><div class="buy-qty">${buyEggs(eggs)}</div></td></tr>
-      <tr><td>Cheddar</td><td>${fmt(cheddar,1)} oz</td><td><div class="buy-qty">${buyCheddar(cheddar)}</div></td></tr>
-      <tr><td>Bell Peppers</td><td>${fmt(peppers,1)}</td><td><div class="buy-qty">${buyPeppers(peppers)}</div></td></tr>
-      <tr><td>Onions</td><td>${fmt(onion_lb,2)} lb</td><td><div class="buy-qty">${buyOnion(onion_lb)}</div></td></tr>
-    `;
-    if (tPotato > 0) rows += `<tr><td>Potatoes</td><td>${fmt(potato_oz,1)} oz</td><td><div class="buy-qty">${buyPotato(potato_oz)}</div></td></tr>`;
-    if (tBacon > 0)  rows += `<tr><td>Bacon</td><td>${fmt(bacon_oz,1)} oz</td><td><div class="buy-qty">${buyBacon(bacon_oz)}</div></td></tr>`;
-    if (tSausage > 0) rows += `<tr><td>Sausage</td><td>${fmt(sausage_oz,1)} oz</td><td><div class="buy-qty">${buySausage(sausage_oz)}</div></td></tr>`;
-
-    document.getElementById('par-results').innerHTML = `
-      <div class="card">
-        <div class="card-title">Shopping List <span class="badge">${tTotal} burritos</span></div>
-        <table class="results-table">
-          <thead><tr><th>Ingredient</th><th>Amount</th><th>Buy</th></tr></thead>
-          <tbody>${rows}</tbody>
-        </table>
-        <div class="total-row">
-          <span class="total-label">Total ingredient cost</span>
-          <span class="total-val">${money(totalCost)}</span>
-        </div>
-      </div>`;
-  }
-
-  // ── REVENUE RESULTS ──
-  const cBacon   = burritoCost('bacon');
-  const cSausage = burritoCost('sausage');
-  const cPotato  = burritoCost('potato');
-
-  if (total === 0) {
-    document.getElementById('rev-results').innerHTML =
-      '<div class="zero-state">Set your daily batch in the Par Sheet tab.</div>';
-  } else {
-    const gross  = tTotal * price;
-    const ingCostBacon   = tBacon   * cBacon;
-    const ingCostSausage = tSausage * cSausage;
-    const ingCostPotato  = tPotato  * cPotato;
-    const totalIngCost   = ingCostBacon + ingCostSausage + ingCostPotato;
-    const net    = gross - totalIngCost;
-    const avgNet = tTotal > 0 ? net / tTotal : 0;
-
-    const netBacon   = (price - cBacon)   * tBacon;
-    const netSausage = (price - cSausage) * tSausage;
-    const netPotato  = (price - cPotato)  * tPotato;
-
-    document.getElementById('rev-results').innerHTML = `
-      <div class="card">
-        <div class="card-title">Summary <span class="badge">${tTotal} burritos</span></div>
-        <div class="rev-grid">
-          <div class="rev-cell">
-            <div class="rev-cell-label">Gross Revenue</div>
-            <div class="rev-cell-val">${money(gross)}</div>
-            <div class="rev-cell-sub">${tTotal} × ${money(price)}</div>
-          </div>
-          <div class="rev-cell">
-            <div class="rev-cell-label">Ingredient Cost</div>
-            <div class="rev-cell-val">${money(totalIngCost)}</div>
-            <div class="rev-cell-sub">No labor/overhead</div>
-          </div>
-          <div class="rev-cell highlight full">
-            <div class="rev-cell-label">Net Profit</div>
-            <div class="rev-cell-val">${money(net)}</div>
-            <div class="rev-cell-sub">${money(avgNet)} avg per burrito</div>
-          </div>
-        </div>
-      </div>
-      <div class="card">
-        <div class="card-title">By Type</div>
-        ${tBacon > 0 ? `<div class="type-row"><span class="type-name">🥓 Bacon (×${tBacon})</span><div><div class="type-detail">${money(cBacon)}/burrito cost</div></div><span class="type-net">${money(netBacon)}</span></div>` : ''}
-        ${tSausage > 0 ? `<div class="type-row"><span class="type-name">🌭 Sausage (×${tSausage})</span><div><div class="type-detail">${money(cSausage)}/burrito cost</div></div><span class="type-net">${money(netSausage)}</span></div>` : ''}
-        ${tPotato > 0 ? `<div class="type-row"><span class="type-name">🥔 Potato (×${tPotato})</span><div><div class="type-detail">${money(cPotato)}/burrito cost</div></div><span class="type-net">${money(netPotato)}</span></div>` : ''}
-      </div>`;
-  }
-
-  // ── QUICK REF ──
-  const sp = parseFloat(document.getElementById('sellprice').value) || 8;
-  document.getElementById('ref-results').innerHTML = `
-    ${refCard('bacon',   '🥓 Bacon Burrito',   sp)}
-    ${refCard('sausage', '🌭 Sausage Burrito',  sp)}
-    ${refCard('potato',  '🥔 Potato Burrito',   sp)}
-  `;
-}
-
-function refCard(type, label, sp) {
-  const c = burritoCost(type);
-  const net = sp - c;
-  const r = recipe[type];
-  const proteinLine = type === 'bacon'
-    ? `<div class="qr-row"><span class="qr-ing">Bacon</span><span class="qr-amt">${r.protein_oz} oz</span></div>`
-    : type === 'sausage'
-    ? `<div class="qr-row"><span class="qr-ing">Sausage</span><span class="qr-amt">${r.protein_oz} oz</span></div>`
-    : `<div class="qr-row"><span class="qr-ing">Potato</span><span class="qr-amt">${r.protein_oz} oz</span></div>`;
-
-  return `
-    <div class="qr-card">
-      <div class="qr-header">
-        <span>${label}</span>
-        <span class="qr-cost">${money(c)}</span>
-      </div>
-      <div class="qr-row"><span class="qr-ing">Tortilla</span><span class="qr-amt">1</span></div>
-      <div class="qr-row"><span class="qr-ing">Eggs</span><span class="qr-amt">1.5</span></div>
-      <div class="qr-row"><span class="qr-ing">Cheddar</span><span class="qr-amt">1.5 oz</span></div>
-      <div class="qr-row"><span class="qr-ing">Veg mix</span><span class="qr-amt">1 oz</span></div>
-      ${proteinLine}
-      <div class="qr-row" style="background:#eaf7ef;">
-        <span class="qr-ing" style="font-weight:700;">Net @ ${money(sp)}</span>
-        <span class="qr-amt" style="color:var(--green);font-weight:700;">${money(net)}</span>
-      </div>
+  // type cards
+  $("#typeCards").innerHTML = TYPES.map(t=>{
+    const c=costPer(t), sp=num(state.sell[t]);
+    const profit=sp-c, margin=sp>0?(profit/sp*100):0;
+    return `<div class="tcard"><div class="name">${LABEL[t]}</div>
+      <div class="cost">${money(c)}</div>
+      <div class="sub">cost / burrito</div>
+      ${sp>0?`<div class="sub" style="margin-top:6px">sell ${money(sp)}</div>
+      <div class="profit">${money(profit)} · ${margin.toFixed(0)}%</div>`:`<div class="sub" style="margin-top:6px">set price ↓</div>`}
     </div>`;
+  }).join("");
+
+  // par table
+  let body="", grand=0;
+  state.ingredients.forEach(i=>{
+    const perDayQty=TYPES.reduce((s,t)=>s+num(state.order[t])*i.qty[t],0);
+    const totalQty=perDayQty*num(state.order.days);
+    const packs=i.pack>0?Math.ceil(totalQty/i.pack - 1e-9):0;
+    const cost=totalQty*unitCost(i); grand+=cost;
+    body+=`<tr><td>${i.name}</td><td>${fmt(perDayQty)} ${i.unit}</td>
+      <td>${fmt(totalQty)} ${i.unit}</td><td class="buy">${packs}</td><td>${money(cost)}</td></tr>`;
+  });
+  body+=`<tr class="tot"><td>Total</td><td></td><td></td><td></td><td>${money(grand)}</td></tr>`;
+  $("#parTable tbody").innerHTML=body;
+
+  // revenue & net
+  let gross=0, cost=0;
+  TYPES.forEach(t=>{ const n=totalCount(t); gross+=n*num(state.sell[t]); cost+=n*costPer(t); });
+  const net=gross-cost;
+  $("#revBody").innerHTML=`
+    <div class="row-sb"><span>Units sold</span><span class="v">${TYPES.reduce((s,t)=>s+totalCount(t),0)}</span></div>
+    <div class="row-sb"><span>Gross revenue</span><span class="v">${money(gross)}</span></div>
+    <div class="row-sb"><span>Ingredient cost</span><span class="v">${money(cost)}</span></div>
+    <div class="row-sb"><span>Net profit</span><span class="v ${net>=0?'pos':'neg'}">${money(net)}</span></div>
+    <div class="note">Avg net / burrito: ${money(TYPES.reduce((s,t)=>s+totalCount(t),0)?net/TYPES.reduce((s,t)=>s+totalCount(t),0):0)} · ingredients only.</div>`;
 }
 
-// ── STEPPER ──────────────────────────────────────────────────
-function step(id, delta) {
-  const el = document.getElementById(id);
-  const min = parseInt(el.min) || 0;
-  el.value = Math.max(min, (parseInt(el.value) || 0) + delta);
-  calc();
+function buildInputs(){
+  // order
+  TYPES.forEach(t=>{ const el=$("#o_"+t); el.value=state.order[t];
+    el.oninput=()=>{state.order[t]=num(el.value);save();render();}; });
+  $("#o_days").value=state.order.days;
+  $("#o_days").oninput=e=>{state.order.days=num(e.target.value);save();render();};
+  // sell
+  TYPES.forEach(t=>{ const el=$("#s_"+t); el.value=state.sell[t];
+    el.oninput=()=>{state.sell[t]=num(el.value);save();render();}; });
+  // ingredient prices
+  $("#ingEdit").innerHTML=state.ingredients.map((i,idx)=>`
+    <div class="ingrow">
+      <div class="nm">${i.name}</div>
+      <input data-ing="${idx}" data-f="price" inputmode="decimal" value="${i.price}">
+      <input data-ing="${idx}" data-f="pack" inputmode="decimal" value="${i.pack}">
+      <input data-ing="${idx}" data-f="unit" value="${i.unit}">
+    </div>`).join("");
+  $("#ingEdit").querySelectorAll("input").forEach(el=>{
+    el.oninput=()=>{const i=state.ingredients[el.dataset.ing];const f=el.dataset.f;
+      i[f]= f==="unit"? el.value : num(el.value); save(); render();};
+  });
+  // recipe
+  $("#recEdit").innerHTML=state.ingredients.map((i,idx)=>`
+    <div class="recrow">
+      <div class="nm">${i.name}<div class="unit">${i.unit}/burrito</div></div>
+      <input data-ing="${idx}" data-t="bacon" inputmode="decimal" value="${i.qty.bacon}">
+      <input data-ing="${idx}" data-t="sausage" inputmode="decimal" value="${i.qty.sausage}">
+      <input data-ing="${idx}" data-t="potato" inputmode="decimal" value="${i.qty.potato}">
+    </div>`).join("");
+  $("#recEdit").querySelectorAll("input").forEach(el=>{
+    el.oninput=()=>{state.ingredients[el.dataset.ing].qty[el.dataset.t]=num(el.value);save();render();};
+  });
 }
 
-// ── TABS ─────────────────────────────────────────────────────
-function switchTab(name) {
-  document.querySelectorAll('.panel').forEach(p => p.classList.remove('active'));
-  document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
-  document.getElementById('panel-' + name).classList.add('active');
-  event.target.classList.add('active');
-}
+// collapse toggles
+document.querySelectorAll("[data-toggle]").forEach(h=>{
+  h.onclick=()=>h.parentElement.classList.toggle("collapsed");
+});
+// buttons
+$("#resetBtn").onclick=()=>{ if(confirm("Reset all prices, recipe, and order to defaults?")){
+  state=JSON.parse(JSON.stringify(DEFAULTS)); save(); buildInputs(); render(); }};
+$("#shareBtn").onclick=()=>{
+  let lines=["Burrito run snapshot",""];
+  TYPES.forEach(t=>lines.push(`${LABEL[t]}: ${money(costPer(t))} cost · sell ${money(num(state.sell[t]))}`));
+  lines.push("","Shopping list:");
+  state.ingredients.forEach(i=>{const q=TYPES.reduce((s,t)=>s+totalCount(t)*i.qty[t],0);
+    if(q>0) lines.push(`• ${i.name}: ${fmt(q)} ${i.unit} (${Math.ceil(q/i.pack-1e-9)} packs)`);});
+  navigator.clipboard.writeText(lines.join("\n")).then(()=>{
+    $("#shareBtn").textContent="Copied!"; setTimeout(()=>$("#shareBtn").textContent="Copy snapshot",1500);
+  });
+};
 
-// ── INIT ─────────────────────────────────────────────────────
-calc();
+buildInputs();
+render();
 </script>
 </body>
 </html>
