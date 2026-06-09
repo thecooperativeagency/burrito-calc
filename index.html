@@ -1,0 +1,684 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+<title>Burrito Calculator</title>
+<style>
+  :root {
+    --bg: #f5f0eb;
+    --surface: #ffffff;
+    --primary: #c0392b;
+    --primary-dark: #a93226;
+    --text: #1a1a1a;
+    --muted: #666;
+    --border: #e0d8d0;
+    --green: #27ae60;
+    --tab-inactive: #e8e0d8;
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    min-height: 100vh;
+    max-width: 480px;
+    margin: 0 auto;
+  }
+
+  header {
+    background: var(--primary);
+    color: white;
+    padding: 16px 20px 12px;
+    position: sticky;
+    top: 0;
+    z-index: 10;
+  }
+
+  header h1 {
+    font-size: 20px;
+    font-weight: 700;
+    letter-spacing: -0.3px;
+  }
+
+  header p {
+    font-size: 12px;
+    opacity: 0.8;
+    margin-top: 2px;
+  }
+
+  .tabs {
+    display: flex;
+    background: var(--primary-dark);
+    padding: 0 8px;
+  }
+
+  .tab {
+    flex: 1;
+    padding: 10px 4px;
+    background: none;
+    border: none;
+    color: rgba(255,255,255,0.7);
+    font-size: 12px;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    cursor: pointer;
+    border-bottom: 3px solid transparent;
+    transition: all 0.15s;
+  }
+
+  .tab.active {
+    color: white;
+    border-bottom-color: white;
+  }
+
+  .content {
+    padding: 16px;
+  }
+
+  .panel { display: none; }
+  .panel.active { display: block; }
+
+  .card {
+    background: var(--surface);
+    border-radius: 12px;
+    padding: 16px;
+    margin-bottom: 14px;
+    box-shadow: 0 1px 4px rgba(0,0,0,0.07);
+  }
+
+  .card-title {
+    font-size: 13px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    color: var(--muted);
+    margin-bottom: 14px;
+  }
+
+  .input-row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 10px 0;
+    border-bottom: 1px solid var(--border);
+  }
+
+  .input-row:last-child { border-bottom: none; }
+
+  .input-label {
+    font-size: 16px;
+    font-weight: 500;
+    flex: 1;
+  }
+
+  .input-sub {
+    font-size: 12px;
+    color: var(--muted);
+    margin-top: 2px;
+  }
+
+  .stepper {
+    display: flex;
+    align-items: center;
+    gap: 0;
+  }
+
+  .stepper button {
+    width: 38px;
+    height: 38px;
+    border: 2px solid var(--border);
+    background: var(--bg);
+    font-size: 20px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: var(--text);
+    transition: background 0.1s;
+    user-select: none;
+    -webkit-user-select: none;
+  }
+
+  .stepper button:first-child { border-radius: 8px 0 0 8px; border-right: 1px solid var(--border); }
+  .stepper button:last-child { border-radius: 0 8px 8px 0; border-left: 1px solid var(--border); }
+  .stepper button:active { background: var(--border); }
+
+  .stepper-val {
+    width: 46px;
+    height: 38px;
+    border: 2px solid var(--border);
+    border-left: none;
+    border-right: none;
+    text-align: center;
+    font-size: 18px;
+    font-weight: 600;
+    background: white;
+    color: var(--text);
+    -moz-appearance: textfield;
+  }
+
+  .stepper-val::-webkit-outer-spin-button,
+  .stepper-val::-webkit-inner-spin-button { -webkit-appearance: none; }
+
+  .price-input-wrap {
+    display: flex;
+    align-items: center;
+    border: 2px solid var(--border);
+    border-radius: 8px;
+    overflow: hidden;
+    background: white;
+  }
+
+  .price-prefix {
+    padding: 0 10px;
+    font-size: 18px;
+    color: var(--muted);
+    background: var(--bg);
+    border-right: 2px solid var(--border);
+    height: 42px;
+    display: flex;
+    align-items: center;
+  }
+
+  .price-input {
+    width: 70px;
+    height: 42px;
+    border: none;
+    padding: 0 10px;
+    font-size: 18px;
+    font-weight: 600;
+    text-align: center;
+    background: white;
+    color: var(--text);
+    outline: none;
+    -moz-appearance: textfield;
+  }
+
+  .price-input::-webkit-outer-spin-button,
+  .price-input::-webkit-inner-spin-button { -webkit-appearance: none; }
+
+  /* Results */
+  .results-table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 14px;
+  }
+
+  .results-table th {
+    text-align: left;
+    padding: 8px 6px;
+    font-size: 11px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.4px;
+    color: var(--muted);
+    border-bottom: 2px solid var(--border);
+  }
+
+  .results-table th:last-child { text-align: right; }
+
+  .results-table td {
+    padding: 10px 6px;
+    border-bottom: 1px solid var(--border);
+    vertical-align: top;
+  }
+
+  .results-table tr:last-child td { border-bottom: none; }
+
+  .results-table td:first-child { font-weight: 600; font-size: 15px; }
+  .results-table td:nth-child(2) { color: var(--muted); font-size: 13px; }
+  .results-table td:last-child { text-align: right; color: var(--muted); font-size: 13px; }
+
+  .buy-qty {
+    font-size: 11px;
+    color: var(--primary);
+    font-weight: 600;
+    margin-top: 2px;
+  }
+
+  .total-row {
+    background: var(--bg);
+    border-radius: 8px;
+    padding: 12px 14px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-top: 12px;
+  }
+
+  .total-label { font-size: 14px; font-weight: 600; color: var(--muted); }
+  .total-val { font-size: 22px; font-weight: 700; color: var(--primary); }
+
+  /* Revenue panel */
+  .rev-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 10px;
+    margin-bottom: 12px;
+  }
+
+  .rev-cell {
+    background: var(--bg);
+    border-radius: 10px;
+    padding: 12px 14px;
+  }
+
+  .rev-cell.full { grid-column: 1 / -1; }
+  .rev-cell.highlight { background: #eaf7ef; }
+
+  .rev-cell-label {
+    font-size: 11px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.4px;
+    color: var(--muted);
+    margin-bottom: 4px;
+  }
+
+  .rev-cell-val {
+    font-size: 22px;
+    font-weight: 700;
+    color: var(--text);
+  }
+
+  .rev-cell.highlight .rev-cell-val { color: var(--green); }
+
+  .rev-cell-sub {
+    font-size: 12px;
+    color: var(--muted);
+    margin-top: 2px;
+  }
+
+  .type-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 9px 0;
+    border-bottom: 1px solid var(--border);
+    font-size: 14px;
+  }
+
+  .type-row:last-child { border-bottom: none; }
+  .type-name { font-weight: 600; }
+  .type-detail { color: var(--muted); font-size: 13px; }
+  .type-net { font-weight: 700; color: var(--green); }
+
+  /* Quick Ref */
+  .qr-card {
+    background: var(--surface);
+    border-radius: 12px;
+    overflow: hidden;
+    margin-bottom: 14px;
+    box-shadow: 0 1px 4px rgba(0,0,0,0.07);
+  }
+
+  .qr-header {
+    background: var(--primary);
+    color: white;
+    padding: 12px 16px;
+    font-weight: 700;
+    font-size: 15px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+  }
+
+  .qr-cost {
+    font-size: 20px;
+    font-weight: 800;
+  }
+
+  .qr-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 11px 16px;
+    border-bottom: 1px solid var(--border);
+    font-size: 14px;
+  }
+
+  .qr-row:last-child { border-bottom: none; }
+  .qr-ing { color: var(--muted); }
+  .qr-amt { font-weight: 600; }
+
+  .zero-state {
+    text-align: center;
+    color: var(--muted);
+    font-size: 15px;
+    padding: 30px 0;
+  }
+
+  .badge {
+    background: var(--primary);
+    color: white;
+    border-radius: 20px;
+    padding: 3px 9px;
+    font-size: 12px;
+    font-weight: 700;
+    margin-left: 8px;
+  }
+
+  footer {
+    text-align: center;
+    padding: 20px;
+    font-size: 11px;
+    color: var(--muted);
+  }
+</style>
+</head>
+<body>
+
+<header>
+  <h1>🌯 Burrito Calculator</h1>
+  <p>Par · Revenue · Quick Reference</p>
+</header>
+
+<div class="tabs">
+  <button class="tab active" onclick="switchTab('par')">Par Sheet</button>
+  <button class="tab" onclick="switchTab('revenue')">Revenue</button>
+  <button class="tab" onclick="switchTab('ref')">Quick Ref</button>
+</div>
+
+<div class="content">
+
+  <!-- PAR SHEET -->
+  <div id="panel-par" class="panel active">
+    <div class="card">
+      <div class="card-title">Daily Batch</div>
+      <div class="input-row">
+        <div class="input-label">🥓 Bacon<div class="input-sub">per day</div></div>
+        <div class="stepper">
+          <button onclick="step('bacon',-1)">−</button>
+          <input class="stepper-val" type="number" id="bacon" value="8" min="0" oninput="calc()">
+          <button onclick="step('bacon',1)">+</button>
+        </div>
+      </div>
+      <div class="input-row">
+        <div class="input-label">🌭 Sausage<div class="input-sub">per day</div></div>
+        <div class="stepper">
+          <button onclick="step('sausage',-1)">−</button>
+          <input class="stepper-val" type="number" id="sausage" value="8" min="0" oninput="calc()">
+          <button onclick="step('sausage',1)">+</button>
+        </div>
+      </div>
+      <div class="input-row">
+        <div class="input-label">🥔 Potato<div class="input-sub">per day</div></div>
+        <div class="stepper">
+          <button onclick="step('potato',-1)">−</button>
+          <input class="stepper-val" type="number" id="potato" value="6" min="0" oninput="calc()">
+          <button onclick="step('potato',1)">+</button>
+        </div>
+      </div>
+      <div class="input-row">
+        <div class="input-label">📅 Days<div class="input-sub">this period</div></div>
+        <div class="stepper">
+          <button onclick="step('days',-1)">−</button>
+          <input class="stepper-val" type="number" id="days" value="3" min="1" oninput="calc()">
+          <button onclick="step('days',1)">+</button>
+        </div>
+      </div>
+    </div>
+
+    <div id="par-results"></div>
+  </div>
+
+  <!-- REVENUE -->
+  <div id="panel-revenue" class="panel">
+    <div class="card">
+      <div class="card-title">Sell Price</div>
+      <div class="input-row" style="border:none; padding:0;">
+        <div class="input-label">Price per burrito</div>
+        <div class="price-input-wrap">
+          <span class="price-prefix">$</span>
+          <input class="price-input" type="number" id="sellprice" value="8" min="0" step="0.50" oninput="calc()">
+        </div>
+      </div>
+    </div>
+    <div id="rev-results"></div>
+  </div>
+
+  <!-- QUICK REF -->
+  <div id="panel-ref" class="panel">
+    <div id="ref-results"></div>
+  </div>
+
+</div>
+
+<footer>Costs from Costco/wholesale pricing · Ingredient costs only, no labor</footer>
+
+<script>
+// ── RECIPE (per burrito) ──────────────────────────────────────
+const recipe = {
+  bacon:   { tortillas:1, eggs:1.5, cheddar_oz:1.5, veg_oz:1, protein_oz:2.4, protein:'bacon'   },
+  sausage: { tortillas:1, eggs:1.5, cheddar_oz:1.5, veg_oz:1, protein_oz:2.0, protein:'sausage' },
+  potato:  { tortillas:1, eggs:1.5, cheddar_oz:1.5, veg_oz:1, protein_oz:2.0, protein:'potato'  }
+};
+
+// ── COSTS ─────────────────────────────────────────────────────
+const costs = {
+  tortilla:    0.25,          // per each
+  egg:         0.375,         // per each
+  cheddar_oz:  0.46875,       // per oz (15/32 = 2lb block $15)
+  pepper:      1.1667,        // per each (6-pack $7)
+  onion_lb:    0.8667,        // per lb (6lb bag $5.20)
+  potato_oz:   0.075,         // per oz (5lb=$6, 80oz)
+  bacon_oz:    0.40,          // per oz
+  sausage_oz:  0.42,          // per oz
+};
+
+// Veg yield: 1 pepper + 0.4 lb onion → 7.5 burritos of sautéed veg
+const VEG_PEPPER_PER_BURRITO = 1 / 7.5;
+const VEG_ONION_LB_PER_BURRITO = 0.4 / 7.5;
+
+// ── COST PER BURRITO ─────────────────────────────────────────
+function burritoCost(type) {
+  const r = recipe[type];
+  let cost = costs.tortilla
+    + r.eggs * costs.egg
+    + r.cheddar_oz * costs.cheddar_oz
+    + VEG_PEPPER_PER_BURRITO * costs.pepper
+    + VEG_ONION_LB_PER_BURRITO * costs.onion_lb;
+
+  if (type === 'bacon')   cost += r.protein_oz * costs.bacon_oz;
+  if (type === 'sausage') cost += r.protein_oz * costs.sausage_oz;
+  if (type === 'potato')  cost += r.protein_oz * costs.potato_oz;
+  return cost;
+}
+
+// ── BUY QUANTITY HELPERS ─────────────────────────────────────
+function buyTortillas(n)   { const packs = Math.ceil(n/20); return `${packs} × 20-pack ($${(packs*5).toFixed(0)})`; }
+function buyEggs(n)        { const packs = Math.ceil(n/24); return `${packs} × 24-pack ($${(packs*9).toFixed(0)})`; }
+function buyCheddar(oz)    { const blocks = Math.ceil(oz/32); return `${blocks} × 2-lb block ($${(blocks*15).toFixed(0)})`; }
+function buyPeppers(n)     { const packs = Math.ceil(n/6);  return `${packs} × 6-pack ($${(packs*7).toFixed(0)})`; }
+function buyOnion(lb)      { const bags = Math.ceil(lb/6);  return `${bags} × 6-lb bag ($${(bags*5.20).toFixed(2)})`; }
+function buyPotato(oz)     { const bags = Math.ceil(oz/80); return `${bags} × 5-lb bag ($${(bags*6).toFixed(0)})`; }
+function buyBacon(oz)      { const lb = oz/16; return `${lb.toFixed(1)} lb ($${(lb*6.40).toFixed(2)})`; }
+function buySausage(oz)    { const lb = oz/16; return `${lb.toFixed(1)} lb ($${(lb*6.72).toFixed(2)})`; }
+
+function fmt(n, dec=2) { return n.toFixed(dec); }
+function money(n) { return '$' + n.toFixed(2); }
+
+// ── MAIN CALC ────────────────────────────────────────────────
+function getInputs() {
+  const bacon   = Math.max(0, parseInt(document.getElementById('bacon').value)   || 0);
+  const sausage = Math.max(0, parseInt(document.getElementById('sausage').value) || 0);
+  const potato  = Math.max(0, parseInt(document.getElementById('potato').value)  || 0);
+  const days    = Math.max(1, parseInt(document.getElementById('days').value)    || 1);
+  const price   = Math.max(0, parseFloat(document.getElementById('sellprice').value) || 0);
+  return { bacon, sausage, potato, days, price };
+}
+
+function calc() {
+  const { bacon, sausage, potato, days, price } = getInputs();
+  const total = (bacon + sausage + potato) * days;
+
+  // Totals over all days
+  const tBacon   = bacon * days;
+  const tSausage = sausage * days;
+  const tPotato  = potato * days;
+  const tTotal   = tBacon + tSausage + tPotato;
+
+  // ── PAR RESULTS ──
+  if (total === 0) {
+    document.getElementById('par-results').innerHTML =
+      '<div class="zero-state">Set your daily batch above to see the shopping list.</div>';
+  } else {
+    const tortillas = tTotal;
+    const eggs      = tTotal * 1.5;
+    const cheddar   = tTotal * 1.5;
+    const peppers   = tTotal * VEG_PEPPER_PER_BURRITO;
+    const onion_lb  = tTotal * VEG_ONION_LB_PER_BURRITO;
+    const potato_oz = tPotato * 2.0;
+    const bacon_oz  = tBacon * 2.4;
+    const sausage_oz = tSausage * 2.0;
+
+    const ingCosts = {
+      tortillas: tortillas * costs.tortilla,
+      eggs:      eggs * costs.egg,
+      cheddar:   cheddar * costs.cheddar_oz,
+      peppers:   peppers * costs.pepper,
+      onion:     onion_lb * costs.onion_lb,
+      potato:    potato_oz * costs.potato_oz,
+      bacon:     bacon_oz * costs.bacon_oz,
+      sausage:   sausage_oz * costs.sausage_oz,
+    };
+
+    const totalCost = Object.values(ingCosts).reduce((a,b) => a+b, 0);
+
+    let rows = `
+      <tr><td>Tortillas</td><td>${tortillas}</td><td><div class="buy-qty">${buyTortillas(tortillas)}</div></td></tr>
+      <tr><td>Eggs</td><td>${fmt(eggs,0)}</td><td><div class="buy-qty">${buyEggs(eggs)}</div></td></tr>
+      <tr><td>Cheddar</td><td>${fmt(cheddar,1)} oz</td><td><div class="buy-qty">${buyCheddar(cheddar)}</div></td></tr>
+      <tr><td>Bell Peppers</td><td>${fmt(peppers,1)}</td><td><div class="buy-qty">${buyPeppers(peppers)}</div></td></tr>
+      <tr><td>Onions</td><td>${fmt(onion_lb,2)} lb</td><td><div class="buy-qty">${buyOnion(onion_lb)}</div></td></tr>
+    `;
+    if (tPotato > 0) rows += `<tr><td>Potatoes</td><td>${fmt(potato_oz,1)} oz</td><td><div class="buy-qty">${buyPotato(potato_oz)}</div></td></tr>`;
+    if (tBacon > 0)  rows += `<tr><td>Bacon</td><td>${fmt(bacon_oz,1)} oz</td><td><div class="buy-qty">${buyBacon(bacon_oz)}</div></td></tr>`;
+    if (tSausage > 0) rows += `<tr><td>Sausage</td><td>${fmt(sausage_oz,1)} oz</td><td><div class="buy-qty">${buySausage(sausage_oz)}</div></td></tr>`;
+
+    document.getElementById('par-results').innerHTML = `
+      <div class="card">
+        <div class="card-title">Shopping List <span class="badge">${tTotal} burritos</span></div>
+        <table class="results-table">
+          <thead><tr><th>Ingredient</th><th>Amount</th><th>Buy</th></tr></thead>
+          <tbody>${rows}</tbody>
+        </table>
+        <div class="total-row">
+          <span class="total-label">Total ingredient cost</span>
+          <span class="total-val">${money(totalCost)}</span>
+        </div>
+      </div>`;
+  }
+
+  // ── REVENUE RESULTS ──
+  const cBacon   = burritoCost('bacon');
+  const cSausage = burritoCost('sausage');
+  const cPotato  = burritoCost('potato');
+
+  if (total === 0) {
+    document.getElementById('rev-results').innerHTML =
+      '<div class="zero-state">Set your daily batch in the Par Sheet tab.</div>';
+  } else {
+    const gross  = tTotal * price;
+    const ingCostBacon   = tBacon   * cBacon;
+    const ingCostSausage = tSausage * cSausage;
+    const ingCostPotato  = tPotato  * cPotato;
+    const totalIngCost   = ingCostBacon + ingCostSausage + ingCostPotato;
+    const net    = gross - totalIngCost;
+    const avgNet = tTotal > 0 ? net / tTotal : 0;
+
+    const netBacon   = (price - cBacon)   * tBacon;
+    const netSausage = (price - cSausage) * tSausage;
+    const netPotato  = (price - cPotato)  * tPotato;
+
+    document.getElementById('rev-results').innerHTML = `
+      <div class="card">
+        <div class="card-title">Summary <span class="badge">${tTotal} burritos</span></div>
+        <div class="rev-grid">
+          <div class="rev-cell">
+            <div class="rev-cell-label">Gross Revenue</div>
+            <div class="rev-cell-val">${money(gross)}</div>
+            <div class="rev-cell-sub">${tTotal} × ${money(price)}</div>
+          </div>
+          <div class="rev-cell">
+            <div class="rev-cell-label">Ingredient Cost</div>
+            <div class="rev-cell-val">${money(totalIngCost)}</div>
+            <div class="rev-cell-sub">No labor/overhead</div>
+          </div>
+          <div class="rev-cell highlight full">
+            <div class="rev-cell-label">Net Profit</div>
+            <div class="rev-cell-val">${money(net)}</div>
+            <div class="rev-cell-sub">${money(avgNet)} avg per burrito</div>
+          </div>
+        </div>
+      </div>
+      <div class="card">
+        <div class="card-title">By Type</div>
+        ${tBacon > 0 ? `<div class="type-row"><span class="type-name">🥓 Bacon (×${tBacon})</span><div><div class="type-detail">${money(cBacon)}/burrito cost</div></div><span class="type-net">${money(netBacon)}</span></div>` : ''}
+        ${tSausage > 0 ? `<div class="type-row"><span class="type-name">🌭 Sausage (×${tSausage})</span><div><div class="type-detail">${money(cSausage)}/burrito cost</div></div><span class="type-net">${money(netSausage)}</span></div>` : ''}
+        ${tPotato > 0 ? `<div class="type-row"><span class="type-name">🥔 Potato (×${tPotato})</span><div><div class="type-detail">${money(cPotato)}/burrito cost</div></div><span class="type-net">${money(netPotato)}</span></div>` : ''}
+      </div>`;
+  }
+
+  // ── QUICK REF ──
+  const sp = parseFloat(document.getElementById('sellprice').value) || 8;
+  document.getElementById('ref-results').innerHTML = `
+    ${refCard('bacon',   '🥓 Bacon Burrito',   sp)}
+    ${refCard('sausage', '🌭 Sausage Burrito',  sp)}
+    ${refCard('potato',  '🥔 Potato Burrito',   sp)}
+  `;
+}
+
+function refCard(type, label, sp) {
+  const c = burritoCost(type);
+  const net = sp - c;
+  const r = recipe[type];
+  const proteinLine = type === 'bacon'
+    ? `<div class="qr-row"><span class="qr-ing">Bacon</span><span class="qr-amt">${r.protein_oz} oz</span></div>`
+    : type === 'sausage'
+    ? `<div class="qr-row"><span class="qr-ing">Sausage</span><span class="qr-amt">${r.protein_oz} oz</span></div>`
+    : `<div class="qr-row"><span class="qr-ing">Potato</span><span class="qr-amt">${r.protein_oz} oz</span></div>`;
+
+  return `
+    <div class="qr-card">
+      <div class="qr-header">
+        <span>${label}</span>
+        <span class="qr-cost">${money(c)}</span>
+      </div>
+      <div class="qr-row"><span class="qr-ing">Tortilla</span><span class="qr-amt">1</span></div>
+      <div class="qr-row"><span class="qr-ing">Eggs</span><span class="qr-amt">1.5</span></div>
+      <div class="qr-row"><span class="qr-ing">Cheddar</span><span class="qr-amt">1.5 oz</span></div>
+      <div class="qr-row"><span class="qr-ing">Veg mix</span><span class="qr-amt">1 oz</span></div>
+      ${proteinLine}
+      <div class="qr-row" style="background:#eaf7ef;">
+        <span class="qr-ing" style="font-weight:700;">Net @ ${money(sp)}</span>
+        <span class="qr-amt" style="color:var(--green);font-weight:700;">${money(net)}</span>
+      </div>
+    </div>`;
+}
+
+// ── STEPPER ──────────────────────────────────────────────────
+function step(id, delta) {
+  const el = document.getElementById(id);
+  const min = parseInt(el.min) || 0;
+  el.value = Math.max(min, (parseInt(el.value) || 0) + delta);
+  calc();
+}
+
+// ── TABS ─────────────────────────────────────────────────────
+function switchTab(name) {
+  document.querySelectorAll('.panel').forEach(p => p.classList.remove('active'));
+  document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+  document.getElementById('panel-' + name).classList.add('active');
+  event.target.classList.add('active');
+}
+
+// ── INIT ─────────────────────────────────────────────────────
+calc();
+</script>
+</body>
+</html>
